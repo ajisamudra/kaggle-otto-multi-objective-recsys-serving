@@ -14,7 +14,11 @@ test-cov:
 
 .PHONY: format-linting
 format-linting:
-	black --color --line-length 88 -v app/ tests/
+	black --color --line-length 88 -v app/
+
+.PHONY: format-import
+format-import:
+	isort --profile black app/
 
 .PHONY: check-linting
 check-linting:
@@ -25,6 +29,8 @@ check-non-linting:
 	flake8 --max-line-length 119 app/
 
 run-test: check-linting check-non-linting test-cov check-static-analysis
+
+run-format: format-linting format-import
 
 localbuild:
 	docker build -t ${MODEL_NAME} .

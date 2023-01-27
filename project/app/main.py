@@ -5,6 +5,7 @@ import logging
 from fastapi import FastAPI
 
 from app.api import health, predict
+
 # from app.db import init_db
 
 log = logging.getLogger("uvicorn")
@@ -21,7 +22,7 @@ def create_application() -> FastAPI:
 app = create_application()
 
 # on startup
-# - load 3 models
+# - load 1 model
 # - load annoy index for candidate retriever
 # - init_db for accessing batch features item, item-day, item-weekday
 

@@ -1,10 +1,13 @@
-from pydantic import BaseModel
 from typing import List
+
+from pydantic import BaseModel
+
 
 class PayloadSchema(BaseModel):
     aids: List[int]
     timestamps: List[int]
     event_types: List[int]
+
 
 class ResponseSchema(BaseModel):
     status: str
@@ -15,7 +18,6 @@ class ResponseSchema(BaseModel):
 
 
 class FeaturesSchema(BaseModel):
-    session: int
     candidate_aid: int
     retrieval_covisit: int
     retrieval_word2vec: int

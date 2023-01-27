@@ -6,8 +6,6 @@ def yaml_to_dict(yaml_file_path: str):
     environment = os.getenv("ENVIRONMENT", "dev")
     config_folder = os.path.join(os.getcwd(), config_folder_name, environment)
     filepath = f"{config_folder}/{yaml_file_path}"
-    print(filepath)
-    print(os.getcwd())
 
     dict_data = {}
     with open(filepath, "r") as f:
