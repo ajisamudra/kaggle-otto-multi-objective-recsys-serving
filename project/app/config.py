@@ -9,6 +9,7 @@ log = logging.getLogger("uvicorn")
 
 class Settings(BaseSettings):
     environment: str = "dev"
+    reload: bool = 1
     testing: bool = 0
 
 
