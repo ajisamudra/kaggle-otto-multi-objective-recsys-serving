@@ -5,7 +5,7 @@ from app.preprocess.preprocess_events import get_hour_from_ts, get_weekday_from_
 from app.preprocess.utils import freemem
 
 
-def make_session_features(data: pl.DataFrame):
+def make_session_features(sess_df: pl.DataFrame):
     """
     df input from
     session | type | ts | aid
@@ -14,7 +14,7 @@ def make_session_features(data: pl.DataFrame):
     123 | 2 | 12345 | AID1
     """
 
-    data = data.with_columns(
+    sess_df = sess_df.with_columns(
         [
             pl.when(pl.col("type") == 0).then(1).otherwise(None).alias("dummy_click"),
             pl.when(pl.col("type") == 1).then(1).otherwise(None).alias("dummy_cart"),
@@ -22,7 +22,7 @@ def make_session_features(data: pl.DataFrame):
         ],
     )
 
-    data = data.with_columns(
+    sess_df = sess_df.with_columns(
         [
             (pl.col("dummy_click") * pl.col("hour")).alias("hour_click"),
             (pl.col("dummy_cart") * pl.col("hour")).alias("hour_cart"),
@@ -34,7 +34,7 @@ def make_session_features(data: pl.DataFrame):
     )
 
     # agg per session
-    data_agg = data.groupby("session").agg(
+    data_agg = sess_df.groupby("session").agg(
         [
             pl.col("aid").count().alias("sess_all_events_count"),
             pl.col("aid").n_unique().alias("sess_aid_dcount"),

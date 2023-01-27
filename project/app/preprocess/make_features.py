@@ -10,6 +10,9 @@ from app.preprocess.item_weekday_features import get_item_weekday_features
 from app.preprocess.preprocess_events import create_session_df
 from app.preprocess.session_features import make_session_features
 from app.preprocess.session_item_features import make_session_item_features
+from app.preprocess.session_representation_items import (
+    make_session_representation_items,
+)
 from app.preprocess.utils import calc_relative_diff_w_mean
 
 
@@ -18,7 +21,7 @@ def make_features(payload: PayloadSchema, candidates: pl.DataFrame) -> pl.DataFr
     sess_df = create_session_df(payload=payload)
 
     # FEATURE 1: session features
-    sess_fea_df = make_session_features(data=sess_df)
+    sess_fea_df = make_session_features(sess_df=sess_df)
 
     # join candidate with sess_fea_df -> get sess_hour & sess_weekday
     candidates = candidates.join(sess_fea_df, how="cross")
@@ -69,13 +72,14 @@ def make_features(payload: PayloadSchema, candidates: pl.DataFrame) -> pl.DataFr
     print(f"join sess_fea shape : {candidates.shape}")
 
     # create session representation
+    sess_repr_df = make_session_representation_items(sess_df=sess_df)
 
     # FEATURE 2: covisit weight features
 
     # item-covisit features
     # get features with candidate_aid & session representation
     item_covisit_fea_df = make_item_covisit_features(
-        cand_df=candidates, sess_representation=candidates
+        cand_df=candidates, sess_representation=sess_repr_df
     )
     candidates = candidates.join(
         item_covisit_fea_df,
@@ -203,7 +207,7 @@ def make_features(payload: PayloadSchema, candidates: pl.DataFrame) -> pl.DataFr
     # get features with candidate_aid & last_aid in session
 
     item_word2vec_fea_df = make_item_word2vec_features(
-        cand_df=candidates, last_event=candidates["candidate_aid"]
+        cand_df=candidates, last_event=sess_repr_df["last_event_in_session_aid"]
     )
     candidates = candidates.join(
         item_word2vec_fea_df,
@@ -215,7 +219,7 @@ def make_features(payload: PayloadSchema, candidates: pl.DataFrame) -> pl.DataFr
 
     # FEATURE 4: session-item features
     # session-item features
-    sess_item_fea_df = make_session_item_features(data=sess_df)
+    sess_item_fea_df = make_session_item_features(sess_df=sess_df)
 
     # join candidate with sess_item_fea_df
     candidates = candidates.join(
@@ -355,4 +359,5 @@ def make_features(payload: PayloadSchema, candidates: pl.DataFrame) -> pl.DataFr
 
     print(candidates.columns)
     print(f"final dataset : {candidates.shape}")
+    print(sess_repr_df.head())
     return candidates

@@ -2,7 +2,7 @@ import numpy as np
 import polars as pl
 
 
-def make_session_item_features(data: pl.DataFrame):
+def make_session_item_features(sess_df: pl.DataFrame):
     """
     df input
     session | type | ts | aid
@@ -12,10 +12,12 @@ def make_session_item_features(data: pl.DataFrame):
     """
 
     # get last ts per session
-    data = data.with_columns([pl.col("ts").last().over("session").alias("curr_ts")])
+    sess_df = sess_df.with_columns(
+        [pl.col("ts").last().over("session").alias("curr_ts")]
+    )
 
     # agg per session X aid
-    data_agg = data.groupby(["session", "aid"]).agg(
+    data_agg = sess_df.groupby(["session", "aid"]).agg(
         [
             pl.col("aid").count().alias("sesXaid_events_count"),
             (pl.col("curr_ts") - pl.col("ts"))
