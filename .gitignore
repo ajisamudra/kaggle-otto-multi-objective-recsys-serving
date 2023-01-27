@@ -130,3 +130,5 @@ dmypy.json
 
 __pycache__
 env
+project/pickles
+*DS_Store
