@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import polars as pl
 
@@ -15,6 +17,7 @@ from app.preprocess.session_representation_items import (
 )
 from app.preprocess.utils import calc_relative_diff_w_mean
 
+log = logging.getLogger("uvicorn")
 
 def make_features(payload: PayloadSchema, candidates: pl.DataFrame) -> pl.DataFrame:
     # create session
@@ -357,7 +360,6 @@ def make_features(payload: PayloadSchema, candidates: pl.DataFrame) -> pl.DataFr
         ]
     )
 
-    print(candidates.columns)
-    print(f"final dataset : {candidates.shape}")
-    print(sess_repr_df.head())
+    log.info(candidates.columns)
+    log.info(f"final dataset : {candidates.shape}")
     return candidates

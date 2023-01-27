@@ -23,7 +23,6 @@ SERVICE_CONFIG = yaml_to_dict("serving_config.yaml")
 # ---------------
 # API Port
 # ---------------
-print(SERVICE_CONFIG)
 APP_CONFIG = SERVICE_CONFIG["application"]
 APP_NAME = APP_CONFIG.get("name", "kaggle-otto-serving")
 APP_VERSION = APP_CONFIG.get("version", "0.1.0")
@@ -31,3 +30,9 @@ APP_API_PREFIX = APP_CONFIG.get("api_prefix", "/api")
 APP_HOST = APP_CONFIG.get("host", "127.0.0.1")
 APP_PORT = APP_CONFIG.get("port", 8000)
 APP_RELOAD = APP_CONFIG.get("reload", True)
+
+# ---------------
+# Pickles Info
+# ---------------
+RANKER_PATH = os.path.join(os.getcwd(), "pickles", "ranker", "model.pkl")
+WORD2VEC_PATH = os.path.join(os.getcwd(), "pickles", "ranker", "model.pkl")

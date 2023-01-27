@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 
 from app.data_models.pydantic import PayloadSchema, ResponseSchema
 from app.preprocess.retrieve_and_make_features import retrieve_and_make_features
+from starlette.requests import Request
 
 router = APIRouter()
 
@@ -12,11 +13,26 @@ router = APIRouter()
     "/predict",
     response_model=ResponseSchema,
 )
-async def predict(payload: PayloadSchema):
+async def predict(request: Request, payload: PayloadSchema):
+
+    # retrieve the ranker_ml object from startup
+    ranker_ml = request.app.state.ranker_ml
+
+    # do retrieval candidates & enrich features for these candidates
     df_features = retrieve_and_make_features(payload=payload)
-    # predict: input df_features output dict of recommendation with its score
+
+    # select features
+    selected_features = df_features.columns
+    selected_features.remove("candidate_aid")
+    X_test = df_features[selected_features].to_pandas()
+    df_features = df_features.select(["candidate_aid"])
+
+    # scoring
+    scores = ranker_ml.model.predict(X_test)
+    df_features = df_features.with_columns([pl.Series(name="score", values=scores)])
+
     # sort candidates aid based on some metrics
-    metrics = "sesXaid_type_weighted_log_recency_score"
+    metrics = "score"
     df_features = df_features.sort([metrics], reverse=True).head(20)
 
     return {

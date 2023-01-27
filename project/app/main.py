@@ -5,7 +5,7 @@ import logging
 from fastapi import FastAPI
 
 from app.api import health, predict
-
+from app.ml_model.ranker import RankerML
 # from app.db import init_db
 
 log = logging.getLogger("uvicorn")
@@ -35,10 +35,18 @@ app = create_application()
 #   - covisit weight
 #   - word2vec annoy index
 
-# @app.on_event("startup")
-# async def startup_event():
-#     log.info("Starting up...")
-#     init_db(app)
+@app.on_event("startup")
+async def startup_event():
+    log.info("Starting up...")
+
+    # init_db(app)
+    log.info("instantiate ranker-ml")
+    app.state.ranker_ml = RankerML()
+    app.state.ranker_ml.load()
+    # flight_model_loader = FlightModelLoader(config=SERVICE_CONFIG)
+    # flight_ranking = flight_model_loader.init_ranking()
+    # flight_propensity = flight_model_loader.init_propensity()
+    log.info("successfully instantiate ranker-ml")
 
 
 @app.on_event("shutdown")
