@@ -1,7 +1,7 @@
 # project/app/api/ping.py
 from fastapi import APIRouter, Depends
 
-from app.models.pydantic import PayloadSchema, ResponseSchema
+from app.data_models.pydantic import PayloadSchema, ResponseSchema
 from app.preprocess.retrieve_and_make_features import retrieve_and_make_features
 
 router = APIRouter()

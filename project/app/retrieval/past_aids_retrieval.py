@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 import polars as pl
 
-from app.models.pydantic import PayloadSchema
+from app.data_models.pydantic import PayloadSchema
 
 
 def past_aids_retrieval(payload: PayloadSchema) -> Tuple[List, List]:

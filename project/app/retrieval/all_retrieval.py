@@ -1,8 +1,7 @@
-from typing import List
-
 import polars as pl
 
-from app.models.pydantic import PayloadSchema
+from app.data_models.pydantic import PayloadSchema
+from app.preprocess.utils import freemem
 from app.retrieval.covisit_retrieval import covisit_retrieval
 from app.retrieval.past_aids_retrieval import past_aids_retrieval
 from app.retrieval.word2vec_retrieval import word2vec_retrieval
@@ -97,5 +96,8 @@ def retrieve_candidates(payload: PayloadSchema) -> pl.DataFrame:
             "rank_past_aids",
         ]
     )
+
+    # change 64 bit to 32 bit
+    candidates = freemem(candidates)
 
     return candidates
