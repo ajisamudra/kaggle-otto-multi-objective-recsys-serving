@@ -2,12 +2,15 @@ import numpy as np
 import polars as pl
 
 from app.data_models.pydantic import PayloadSchema
+from app.embeddings.covisit import make_item_covisit_features
+from app.embeddings.word2vec import make_item_word2vec_features
 from app.preprocess.item_features import get_item_features
 from app.preprocess.item_hour_features import get_item_hour_features
 from app.preprocess.item_weekday_features import get_item_weekday_features
 from app.preprocess.preprocess_events import create_session_df
 from app.preprocess.session_features import make_session_features
 from app.preprocess.session_item_features import make_session_item_features
+from app.preprocess.utils import calc_relative_diff_w_mean
 
 
 def make_features(payload: PayloadSchema, candidates: pl.DataFrame) -> pl.DataFrame:
@@ -71,11 +74,144 @@ def make_features(payload: PayloadSchema, candidates: pl.DataFrame) -> pl.DataFr
 
     # item-covisit features
     # get features with candidate_aid & session representation
+    item_covisit_fea_df = make_item_covisit_features(
+        cand_df=candidates, sess_representation=candidates
+    )
+    candidates = candidates.join(
+        item_covisit_fea_df,
+        how="left",
+        left_on=["candidate_aid"],
+        right_on=["candidate_aid"],
+    )
+    candidates = candidates.fill_null(0)
+
+    # additional transformation
+    candidates = candidates.with_columns(
+        [
+            np.mean(
+                [
+                    pl.col("click_weight_with_last_event_in_session_aid"),
+                    pl.col("click_weight_with_max_recency_event_in_session_aid"),
+                    pl.col(
+                        "click_weight_with_max_weighted_recency_event_in_session_aid"
+                    ),
+                    pl.col("click_weight_with_max_duration_event_in_session_aid"),
+                ]
+            ).alias("click_weight_mean"),
+            pl.max(
+                [
+                    pl.col("click_weight_with_last_event_in_session_aid"),
+                    pl.col("click_weight_with_max_recency_event_in_session_aid"),
+                    pl.col(
+                        "click_weight_with_max_weighted_recency_event_in_session_aid"
+                    ),
+                    pl.col("click_weight_with_max_duration_event_in_session_aid"),
+                ]
+            ).alias("click_weight_max"),
+            pl.min(
+                [
+                    pl.col("click_weight_with_last_event_in_session_aid"),
+                    pl.col("click_weight_with_max_recency_event_in_session_aid"),
+                    pl.col(
+                        "click_weight_with_max_weighted_recency_event_in_session_aid"
+                    ),
+                    pl.col("click_weight_with_max_duration_event_in_session_aid"),
+                ]
+            ).alias("click_weight_min"),
+            np.mean(
+                [
+                    pl.col("buys_weight_with_last_event_in_session_aid"),
+                    pl.col("buys_weight_with_max_recency_event_in_session_aid"),
+                    pl.col(
+                        "buys_weight_with_max_weighted_recency_event_in_session_aid"
+                    ),
+                    pl.col("buys_weight_with_max_duration_event_in_session_aid"),
+                ]
+            ).alias("buys_weight_mean"),
+            pl.max(
+                [
+                    pl.col("buys_weight_with_last_event_in_session_aid"),
+                    pl.col("buys_weight_with_max_recency_event_in_session_aid"),
+                    pl.col(
+                        "buys_weight_with_max_weighted_recency_event_in_session_aid"
+                    ),
+                    pl.col("buys_weight_with_max_duration_event_in_session_aid"),
+                ]
+            ).alias("buys_weight_max"),
+            pl.min(
+                [
+                    pl.col("buys_weight_with_last_event_in_session_aid"),
+                    pl.col("buys_weight_with_max_recency_event_in_session_aid"),
+                    pl.col(
+                        "buys_weight_with_max_weighted_recency_event_in_session_aid"
+                    ),
+                    pl.col("buys_weight_with_max_duration_event_in_session_aid"),
+                ]
+            ).alias("buys_weight_min"),
+            np.mean(
+                [
+                    pl.col("buy2buy_weight_with_last_event_in_session_aid"),
+                    pl.col("buy2buy_weight_with_max_recency_event_in_session_aid"),
+                    pl.col(
+                        "buy2buy_weight_with_max_weighted_recency_event_in_session_aid"
+                    ),
+                    pl.col("buy2buy_weight_with_max_duration_event_in_session_aid"),
+                ]
+            ).alias("buy2buy_weight_mean"),
+            pl.max(
+                [
+                    pl.col("buy2buy_weight_with_last_event_in_session_aid"),
+                    pl.col("buy2buy_weight_with_max_recency_event_in_session_aid"),
+                    pl.col(
+                        "buy2buy_weight_with_max_weighted_recency_event_in_session_aid"
+                    ),
+                    pl.col("buy2buy_weight_with_max_duration_event_in_session_aid"),
+                ]
+            ).alias("buy2buy_weight_max"),
+            pl.min(
+                [
+                    pl.col("buy2buy_weight_with_last_event_in_session_aid"),
+                    pl.col("buy2buy_weight_with_max_recency_event_in_session_aid"),
+                    pl.col(
+                        "buy2buy_weight_with_max_weighted_recency_event_in_session_aid"
+                    ),
+                    pl.col("buy2buy_weight_with_max_duration_event_in_session_aid"),
+                ]
+            ).alias("buy2buy_weight_min"),
+        ]
+    )
+
+    candidates = candidates.with_columns(
+        [
+            (pl.col("buy2buy_weight_max") - pl.col("buy2buy_weight_min")).alias(
+                "buy2buy_weight_diff_max_min"
+            ),
+            (pl.col("buys_weight_max") - pl.col("buys_weight_min")).alias(
+                "buys_weight_diff_max_min"
+            ),
+            (pl.col("click_weight_max") - pl.col("click_weight_min")).alias(
+                "click_weight_diff_max_min"
+            ),
+        ]
+    )
+
+    print(f"join covisit_fea shape : {candidates.shape}")
 
     # FEATURE 3: word2vec distance features
 
     # item-word2vec features
     # get features with candidate_aid & last_aid in session
+
+    item_word2vec_fea_df = make_item_word2vec_features(
+        cand_df=candidates, last_event=candidates["candidate_aid"]
+    )
+    candidates = candidates.join(
+        item_word2vec_fea_df,
+        how="left",
+        left_on=["candidate_aid"],
+        right_on=["candidate_aid"],
+    )
+    print(f"join word2vec_fea shape : {candidates.shape}")
 
     # FEATURE 4: session-item features
     # session-item features
@@ -133,6 +269,20 @@ def make_features(payload: PayloadSchema, candidates: pl.DataFrame) -> pl.DataFr
     )
     candidates = candidates.fill_null(0)
     print(f"join sess_item_fea shape : {candidates.shape}")
+
+    # FEATURES 4-B: relative distance features
+    DIF_FEAS = [
+        "click_weight_with_last_event_in_session_aid",
+        "buys_weight_with_last_event_in_session_aid",
+        "buy2buy_weight_with_last_event_in_session_aid",
+        "word2vec_skipgram_last_event_cosine_distance",
+        "word2vec_skipgram_last_event_euclidean_distance",
+    ]
+    for f in DIF_FEAS:
+        candidates = calc_relative_diff_w_mean(df=candidates, feature=f)
+    # fill 0
+    candidates = candidates.fill_nan(0)
+    print(f"join relative_distance_fea shape : {candidates.shape}")
 
     # FEATURE 5: item features
     item_fea_df = get_item_features(cand_df=candidates)
@@ -197,13 +347,12 @@ def make_features(payload: PayloadSchema, candidates: pl.DataFrame) -> pl.DataFr
             "session",
             "sess_hour",
             "sess_weekday",
-            # "buy2buy_weight_min",
-            # "click_weight_min",
+            "buy2buy_weight_min",
+            "click_weight_min",
+            "hour",
         ]
     )
 
-    print(f"final dataset : {candidates.shape}")
-
-    print(candidates["candidate_aid"].to_list())
     print(candidates.columns)
+    print(f"final dataset : {candidates.shape}")
     return candidates
