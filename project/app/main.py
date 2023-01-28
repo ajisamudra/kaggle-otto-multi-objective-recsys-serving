@@ -6,6 +6,10 @@ from annoy import AnnoyIndex
 from fastapi import FastAPI
 
 from app.api import health, predict
+from app.embeddings.covisit import (
+    load_top15_covisitation_buy2buy,
+    load_top15_covisitation_buys,
+)
 from app.embeddings.word2vec import load_annoy_idx_word2vec_vect32_wdw3_embedding
 from app.ml_model.ranker import RankerML
 
@@ -47,6 +51,12 @@ async def startup_event():
     # log.info("instantiate word2vec embedding")
     # app.state.word2vec_idx: AnnoyIndex = load_annoy_idx_word2vec_vect32_wdw3_embedding()
     # log.info("successfully instantiate word2vec embedding")
+    # log.info("instantiate covisit buys")
+    # app.state.buys_dict: dict = load_top15_covisitation_buys()
+    # log.info("successfully instantiate covisit buys")
+    # log.info("instantiate covisit buy2buy")
+    # app.state.buy2buy_dict: dict = load_top15_covisitation_buy2buy()
+    # log.info("successfully instantiate covisit buy2buy")
 
 
 @app.on_event("shutdown")

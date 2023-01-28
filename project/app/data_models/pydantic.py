@@ -11,10 +11,10 @@ class PayloadSchema(BaseModel):
 
 class ResponseSchema(BaseModel):
     status: str
-    aids: List[int]
-    event_types: List[int]
     recommendation: List[int]
     scores: List[float]
+    aids: List[int]
+    event_types: List[int]
 
 
 class FeaturesSchema(BaseModel):

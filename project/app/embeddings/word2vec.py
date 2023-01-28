@@ -143,7 +143,7 @@ def make_item_word2vec_features(
 ############
 
 
-def suggest_clicks_word2vec(
+def suggest_candidates_word2vec(
     n_candidate: int,
     aids: list,
     embedding: AnnoyIndex,
