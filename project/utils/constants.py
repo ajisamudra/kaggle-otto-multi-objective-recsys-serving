@@ -39,6 +39,7 @@ WORD2VEC_PATH = os.path.join(os.getcwd(), "pickles", "word2vec", "word2vec_local
 COVISIT_PATH = os.path.join(os.getcwd(), "pickles", "co-visitation")
 
 # ---------------
-# Pickles Info
+# DB Info
 # ---------------
+# DATABASE_URL=postgres://{user}:{password}@{hostname}:{port}/{database-name}
 DATABASE_URL = os.getenv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/web_dev")
