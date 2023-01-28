@@ -1,5 +1,7 @@
-from utils import constants
 import joblib
+
+from utils import constants
+
 
 class RankerML(object):
     """Class to load the ranker-ml"""
@@ -9,5 +11,3 @@ class RankerML(object):
 
     def load(self):
         self.model = joblib.load(constants.RANKER_PATH)
-
-

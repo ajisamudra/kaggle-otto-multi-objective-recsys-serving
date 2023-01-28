@@ -2,10 +2,13 @@
 
 import logging
 
+from annoy import AnnoyIndex
 from fastapi import FastAPI
 
 from app.api import health, predict
+from app.embeddings.word2vec import load_annoy_idx_word2vec_vect32_wdw3_embedding
 from app.ml_model.ranker import RankerML
+
 # from app.db import init_db
 
 log = logging.getLogger("uvicorn")
@@ -22,18 +25,15 @@ def create_application() -> FastAPI:
 app = create_application()
 
 # on startup
-# - load 1 model
-# - load annoy index for candidate retriever
+# - load 1 model Done
+# - [TODO] load annoy index for candidate retriever & weights/distances features
 # - init_db for accessing batch features item, item-day, item-weekday
 
 # TODO:
-# create simple working model inference with following requirements
-# - infer using 1 model
-# - only include past aids as candiates
-# - build preprocess from past aids to final features for model
 # - for preprocess will need
 #   - covisit weight
 #   - word2vec annoy index
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -43,10 +43,10 @@ async def startup_event():
     log.info("instantiate ranker-ml")
     app.state.ranker_ml = RankerML()
     app.state.ranker_ml.load()
-    # flight_model_loader = FlightModelLoader(config=SERVICE_CONFIG)
-    # flight_ranking = flight_model_loader.init_ranking()
-    # flight_propensity = flight_model_loader.init_propensity()
     log.info("successfully instantiate ranker-ml")
+    # log.info("instantiate word2vec embedding")
+    # app.state.word2vec_idx: AnnoyIndex = load_annoy_idx_word2vec_vect32_wdw3_embedding()
+    # log.info("successfully instantiate word2vec embedding")
 
 
 @app.on_event("shutdown")

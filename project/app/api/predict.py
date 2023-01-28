@@ -1,10 +1,10 @@
 # project/app/api/ping.py
 import polars as pl
 from fastapi import APIRouter, Depends
+from starlette.requests import Request
 
 from app.data_models.pydantic import PayloadSchema, ResponseSchema
 from app.preprocess.retrieve_and_make_features import retrieve_and_make_features
-from starlette.requests import Request
 
 router = APIRouter()
 
@@ -19,7 +19,7 @@ async def predict(request: Request, payload: PayloadSchema):
     ranker_ml = request.app.state.ranker_ml
 
     # do retrieval candidates & enrich features for these candidates
-    df_features = retrieve_and_make_features(payload=payload)
+    df_features = retrieve_and_make_features(request=request, payload=payload)
 
     # select features
     selected_features = df_features.columns

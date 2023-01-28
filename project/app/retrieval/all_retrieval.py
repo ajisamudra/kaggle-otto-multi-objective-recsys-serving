@@ -1,4 +1,5 @@
 import polars as pl
+from starlette.requests import Request
 
 from app.data_models.pydantic import PayloadSchema
 from app.preprocess.utils import freemem
@@ -7,7 +8,7 @@ from app.retrieval.past_aids_retrieval import past_aids_retrieval
 from app.retrieval.word2vec_retrieval import word2vec_retrieval
 
 
-def retrieve_candidates(payload: PayloadSchema) -> pl.DataFrame:
+def retrieve_candidates(payload: PayloadSchema, request: Request) -> pl.DataFrame:
     """
     Output scheme should be
 
@@ -27,7 +28,7 @@ def retrieve_candidates(payload: PayloadSchema) -> pl.DataFrame:
     candidates2, ranks2 = covisit_retrieval(payload=payload)
 
     # retieve word2vec
-    candidates3, ranks3 = word2vec_retrieval(payload=payload)
+    candidates3, ranks3 = word2vec_retrieval(payload=payload, request=request)
 
     # combine candidates & its ranks
     # first candidate

@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 import polars as pl
+from starlette.requests import Request
 
 from app.data_models.pydantic import PayloadSchema
 from app.embeddings.covisit import make_item_covisit_features
@@ -19,7 +20,10 @@ from app.preprocess.utils import calc_relative_diff_w_mean
 
 log = logging.getLogger("uvicorn")
 
-def make_features(payload: PayloadSchema, candidates: pl.DataFrame) -> pl.DataFrame:
+
+def make_features(
+    payload: PayloadSchema, candidates: pl.DataFrame, request: Request
+) -> pl.DataFrame:
     # create session
     sess_df = create_session_df(payload=payload)
 
@@ -210,7 +214,9 @@ def make_features(payload: PayloadSchema, candidates: pl.DataFrame) -> pl.DataFr
     # get features with candidate_aid & last_aid in session
 
     item_word2vec_fea_df = make_item_word2vec_features(
-        cand_df=candidates, last_event=sess_repr_df["last_event_in_session_aid"]
+        request=request,
+        candidate_aids=candidates["candidate_aid"].to_list(),
+        last_event=sess_repr_df["last_event_in_session_aid"].to_list()[0],
     )
     candidates = candidates.join(
         item_word2vec_fea_df,
