@@ -119,3 +119,8 @@ class FeaturesSchema(BaseModel):
     itemXweekday_frac_click_all_click_count: float
     itemXweekday_frac_cart_all_cart_count: float
     itemXweekday_frac_cart_all_weekday_cart_count: float
+
+
+# item features shape (556203, 10)
+# item hour features shape (1506694, 6)
+# item weekday features shape (1119686, 9)

@@ -362,7 +362,6 @@ def make_features(
             "sess_weekday",
             "buy2buy_weight_min",
             "click_weight_min",
-            "hour",
         ]
     )
 

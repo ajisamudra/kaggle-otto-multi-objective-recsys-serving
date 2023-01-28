@@ -37,3 +37,8 @@ APP_RELOAD = APP_CONFIG.get("reload", True)
 RANKER_PATH = os.path.join(os.getcwd(), "pickles", "ranker", "model.pkl")
 WORD2VEC_PATH = os.path.join(os.getcwd(), "pickles", "word2vec", "word2vec_local_clicks_skipgram_vec32_wdw3.kv")
 COVISIT_PATH = os.path.join(os.getcwd(), "pickles", "co-visitation")
+
+# ---------------
+# Pickles Info
+# ---------------
+DATABASE_URL = os.getenv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/web_dev")

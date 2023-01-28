@@ -4,6 +4,7 @@ import logging
 
 from annoy import AnnoyIndex
 from fastapi import FastAPI
+from app.db import init_db
 
 from app.api import health, predict
 from app.embeddings.covisit import (
@@ -30,20 +31,17 @@ app = create_application()
 
 # on startup
 # - load 1 model Done
-# - [TODO] load annoy index for candidate retriever & weights/distances features
-# - init_db for accessing batch features item, item-day, item-weekday
-
-# TODO:
-# - for preprocess will need
-#   - covisit weight
-#   - word2vec annoy index
+# - [DONE] load annoy index for candidate retriever & weights/distances features
+# - [TODO] init_db for accessing batch features
+# item, item-day, item-weekday, item-covisitation-clicks/buys/buy2buy
 
 
 @app.on_event("startup")
 async def startup_event():
     log.info("Starting up...")
-
-    # init_db(app)
+    log.info("register tortoise")
+    init_db(app)
+    log.info("successfully register tortoise")
     log.info("instantiate ranker-ml")
     app.state.ranker_ml = RankerML()
     app.state.ranker_ml.load()

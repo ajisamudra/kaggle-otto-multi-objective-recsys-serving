@@ -9,7 +9,6 @@ def get_item_features(cand_df: pl.DataFrame):
     # dummy data
     data = {
         "aid": [i for i in range(100)],
-        "hour": [i for i in range(100)],
         "item_all_events_count": [i for i in range(100)],
         "item_click_count": [i for i in range(100)],
         "item_cart_count": [i for i in range(100)],

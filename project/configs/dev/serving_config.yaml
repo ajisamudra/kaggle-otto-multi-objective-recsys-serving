@@ -1,35 +1,3 @@
-pipeline:
-  preprocessor_name: "preprocess"
-  model_name: "ranking_model"
-
-model:
-  ranking_model:
-    model_path: "insurance_flight_ranking"
-    version: "LGBRanker_2021-07-01_0_9175_9137"
-  binary_models:
-    airport_transfer:
-      model_path: "xselling_airport_transfer_propensity_nocw"
-      version: "LGBPropensity_2021-06-01_60_7518_8782"
-    covid_insurance:
-      model_path: "xselling_flight_covid_insurance_propensity_nocw"
-      version: "LGBPropensity_2021-10-04_200_8438_9407"
-    covid_test:
-      model_path: "xselling_flight_covid_test_propensity_nocw"
-      version: "LGBPropensity_2021-10-04_100_7170_7772"
-    flight_baggage:
-      model_path: "xselling_flight_baggage_propensity_nocw"
-      version: "LGBPropensity_2021-10-04_100_8525_8685"
-    flight_delay:
-      model_path: "xselling_flight_delay_propensity_nocw"
-      version: "LGBPropensity_2021-10-04_200_8453_8628"
-    flight_departure:
-      model_path: "xselling_flight_departure_propensity_nocw"
-      version: "LGBPropensity_2021-10-04_200_7810_8036"
-    flight_insurance:
-      model_path: "xselling_flight_insurance_propensity_nocw"
-      version: "LGBPropensity_2021-10-04_200_8609_9038"
-  model_version: "fs-ml.2021-10-01"
-
 application:
   version: "1.0.0"
   name: "kaggle-otto-serving"
