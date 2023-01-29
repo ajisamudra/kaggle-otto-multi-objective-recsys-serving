@@ -2,22 +2,6 @@ version: '3.8'
 
 services:
 
-  web:
-    build: ./project
-    # command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
-    command: make serve-uvicorn
-    volumes:
-      - ./project:/usr/src/app
-    ports:
-      - 8004:8000
-    environment:
-      - ENVIRONMENT=dev
-      - TESTING=0
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/web_dev
-      - DATABASE_TEST_URL=postgres://postgres:postgres@db:5432/web_test
-    depends_on:
-      - database
-
   db:
     build:
       context: ./project/db
@@ -27,3 +11,24 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    volumes:
+      - kaggle-otto-database:/var/lib/postgresql/data
+      - ./project/db:/serving_db
+
+  web:
+    build: ./project
+    command: ["make", "serve-uvicorn"]
+    # command: ["bash"]
+    volumes:
+      - ./project:/serving
+    ports:
+      - 8004:8000
+    environment:
+      - ENVIRONMENT=dev
+      - TESTING=0
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/web_dev
+    depends_on:
+      - db
+
+volumes:
+  kaggle-otto-database:
