@@ -2,40 +2,6 @@ import itertools
 from collections import Counter
 
 import numpy as np
-import pandas as pd
-import polars as pl
-
-from app.preprocess.utils import freemem
-from utils import constants
-
-############
-# Load Covisit Matrix as dict
-############
-
-DISK_PIECES = 4
-VER_FEA = 5
-
-
-def pqt_to_dict(df):
-    return df.groupby("aid_x").aid_y.apply(list).to_dict()
-
-
-def load_top15_covisitation_buys():
-    covisit_dir = constants.COVISIT_PATH
-    top_15_buys = pqt_to_dict(
-        pd.read_parquet(f"{covisit_dir}/top_15_carts_orders_v{VER_FEA}_0.pqt")
-    )
-
-    return top_15_buys
-
-
-def load_top15_covisitation_buy2buy():
-    covisit_dir = constants.COVISIT_PATH
-    top_15_buy2buy = pqt_to_dict(
-        pd.read_parquet(f"{covisit_dir}/top_15_buy2buy_v{VER_FEA}_0.pqt")
-    )
-    return top_15_buy2buy
-
 
 ############
 # Covisit Retrieval
@@ -126,50 +92,3 @@ def suggest_candidates_covisit(
     ranks = [i for i in range(len(candidates))]
 
     return candidates, ranks
-
-
-############
-# function to make covisit features
-# will use postgres to store the data instead
-############
-
-# input candidate_aid, session representation
-def make_item_covisit_features(
-    cand_df: pl.DataFrame, sess_representation: pl.DataFrame
-):
-
-    # dummy data
-    data = {
-        "candidate_aid": [i for i in range(100)],
-        "click_weight_with_last_event_in_session_aid": [0.13 for i in range(100)],
-        "click_weight_with_max_recency_event_in_session_aid": [0.4 for i in range(100)],
-        "click_weight_with_max_weighted_recency_event_in_session_aid": [
-            0.13 for i in range(100)
-        ],
-        "click_weight_with_max_duration_event_in_session_aid": [
-            0.13 for i in range(100)
-        ],
-        "buys_weight_with_last_event_in_session_aid": [0.13 for i in range(100)],
-        "buys_weight_with_max_recency_event_in_session_aid": [0.13 for i in range(100)],
-        "buys_weight_with_max_weighted_recency_event_in_session_aid": [
-            0.13 for i in range(100)
-        ],
-        "buys_weight_with_max_duration_event_in_session_aid": [
-            0.13 for i in range(100)
-        ],
-        "buy2buy_weight_with_last_event_in_session_aid": [0.13 for i in range(100)],
-        "buy2buy_weight_with_max_recency_event_in_session_aid": [
-            0.13 for i in range(100)
-        ],
-        "buy2buy_weight_with_max_weighted_recency_event_in_session_aid": [
-            0.13 for i in range(100)
-        ],
-        "buy2buy_weight_with_max_duration_event_in_session_aid": [
-            0.13 for i in range(100)
-        ],
-    }
-
-    data_agg = pl.DataFrame(data)
-    data_agg = freemem(data_agg)
-
-    return data_agg

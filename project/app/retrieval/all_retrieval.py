@@ -1,3 +1,5 @@
+import logging
+import time
 import polars as pl
 from starlette.requests import Request
 
@@ -6,8 +8,10 @@ from app.preprocess.utils import freemem
 from app.retrieval.covisit_retrieval import covisit_retrieval
 from app.retrieval.word2vec_retrieval import word2vec_retrieval
 
+log = logging.getLogger("uvicorn")
 
-def retrieve_candidates(payload: PayloadSchema, request: Request) -> pl.DataFrame:
+
+async def retrieve_candidates(payload: PayloadSchema, request: Request) -> pl.DataFrame:
     """
     Output scheme should be
 
@@ -22,10 +26,13 @@ def retrieve_candidates(payload: PayloadSchema, request: Request) -> pl.DataFram
     """
     # retrieve covisit
     # including retrieve past aids
-    candidates1, ranks1 = covisit_retrieval(payload=payload, request=request)
+    time1 = time.time()
+    candidates1, ranks1 = await covisit_retrieval(payload=payload, request=request)
+    time2 = time.time()
 
     # retieve word2vec
     candidates2, ranks2 = word2vec_retrieval(payload=payload, request=request)
+    time3 = time.time()
 
     # combine candidates & its ranks
     # first candidate
@@ -79,5 +86,18 @@ def retrieve_candidates(payload: PayloadSchema, request: Request) -> pl.DataFram
 
     # change 64 bit to 32 bit
     candidates = freemem(candidates)
+    time4 = time.time()
+
+    # log time taken
+    time21 = time2 - time1
+    time32 = time3 - time2
+    time43 = time4 - time3
+    time41 = time4 - time1
+    log.info("================ retrieval ================")
+    log.info(f"time taken covisit + word2vec + post-retrieval: {round(time41,4)} s")
+    log.info(f"time taken covisit retrieval = {round(time21,4)} s")
+    log.info(f"time taken word2vec retrieval = {round(time32,4)} s")
+    log.info(f"time taken post-retrieval = {round(time43,4)} s")
+    log.info("================ retrieval ================")
 
     return candidates
