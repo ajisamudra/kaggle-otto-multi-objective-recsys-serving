@@ -21,7 +21,7 @@ from app.preprocess.utils import calc_relative_diff_w_mean
 log = logging.getLogger("uvicorn")
 
 
-def make_features(
+async def make_features(
     payload: PayloadSchema, candidates: pl.DataFrame, request: Request
 ) -> pl.DataFrame:
     # create session
@@ -298,7 +298,9 @@ def make_features(
     print(f"join relative_distance_fea shape : {candidates.shape}")
 
     # FEATURE 5: item features
-    item_fea_df = get_item_features(cand_df=candidates)
+    item_fea_df = await get_item_features(
+        candidate_aids=candidates["candidate_aid"].to_list()
+    )
     candidates = candidates.join(
         item_fea_df,
         how="left",
@@ -326,8 +328,9 @@ def make_features(
 
     # item-hour features
     # get features with candidate_aid & sess_hour
-    item_hour_fea_df = get_item_hour_features(
-        cand_df=candidates, hour=sess_fea_df["sess_hour"]
+    item_hour_fea_df = await get_item_hour_features(
+        candidate_aids=candidates["candidate_aid"].to_list(),
+        hours=sess_fea_df["sess_hour"].to_list(),
     )
     candidates = candidates.join(
         item_hour_fea_df,
@@ -342,8 +345,9 @@ def make_features(
 
     # item-weekday features
     # get features with candidate_aid & sess_weekday
-    item_weekday_fea_df = get_item_weekday_features(
-        cand_df=candidates, weekday=sess_fea_df["sess_weekday"]
+    item_weekday_fea_df = await get_item_weekday_features(
+        candidate_aids=candidates["candidate_aid"].to_list(),
+        weekdays=sess_fea_df["sess_weekday"].to_list(),
     )
     candidates = candidates.join(
         item_weekday_fea_df,
@@ -365,6 +369,6 @@ def make_features(
         ]
     )
 
-    log.info(candidates.columns)
+    # log.info(candidates.columns)
     log.info(f"final dataset : {candidates.shape}")
     return candidates

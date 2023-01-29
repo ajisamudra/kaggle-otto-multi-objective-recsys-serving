@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     testing: bool = 0
     database_url: AnyUrl = None
 
+
 @lru_cache()
 def get_settings() -> BaseSettings:
     log.info("Loading config settings from the environment...")

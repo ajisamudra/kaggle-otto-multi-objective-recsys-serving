@@ -1,23 +1,49 @@
 import polars as pl
+from typing import List
 
 from app.preprocess.utils import freemem
-
+from app.api.crud import retrieve_item_features
 
 # input candidate_aid, hour
-def get_item_features(cand_df: pl.DataFrame):
+async def get_item_features(candidate_aids: List) -> pl.DataFrame:
+    results = await retrieve_item_features(candidate_aids=candidate_aids)
 
-    # dummy data
+    # parse the result
+    aids = []
+    item_all_events_counts = []
+    item_click_counts = []
+    item_cart_counts = []
+    item_order_counts = []
+    item_avg_hour_clicks = []
+    item_avg_hour_carts = []
+    item_avg_hour_orders = []
+    item_avg_weekday_clicks = []
+    item_avg_weekday_orders = []
+
+    for row in results:
+        aids.append(row["aid"])
+        item_all_events_counts.append(row["item_all_events_count"])
+        item_click_counts.append(row["item_click_count"])
+        item_cart_counts.append(row["item_cart_count"])
+        item_order_counts.append(row["item_order_count"])
+        item_avg_hour_clicks.append(row["item_avg_hour_click"])
+        item_avg_hour_carts.append(row["item_avg_hour_cart"])
+        item_avg_hour_orders.append(row["item_avg_hour_order"])
+        item_avg_weekday_clicks.append(row["item_avg_weekday_click"])
+        item_avg_weekday_orders.append(row["item_avg_weekday_order"])
+
+    # save data as dataframe
     data = {
-        "aid": [i for i in range(100)],
-        "item_all_events_count": [i for i in range(100)],
-        "item_click_count": [i for i in range(100)],
-        "item_cart_count": [i for i in range(100)],
-        "item_order_count": [i for i in range(100)],
-        "item_avg_hour_click": [i for i in range(100)],
-        "item_avg_hour_cart": [i for i in range(100)],
-        "item_avg_hour_order": [i for i in range(100)],
-        "item_avg_weekday_click": [i for i in range(100)],
-        "item_avg_weekday_order": [i for i in range(100)],
+        "aid": aids,
+        "item_all_events_count": item_all_events_counts,
+        "item_click_count": item_click_counts,
+        "item_cart_count": item_cart_counts,
+        "item_order_count": item_order_counts,
+        "item_avg_hour_click": item_avg_hour_clicks,
+        "item_avg_hour_cart": item_avg_hour_carts,
+        "item_avg_hour_order": item_avg_hour_orders,
+        "item_avg_weekday_click": item_avg_weekday_clicks,
+        "item_avg_weekday_order": item_avg_weekday_orders,
     }
 
     data_agg = pl.DataFrame(data)

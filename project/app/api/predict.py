@@ -19,7 +19,7 @@ async def predict(request: Request, payload: PayloadSchema):
     ranker_ml = request.app.state.ranker_ml
 
     # do retrieval candidates & enrich features for these candidates
-    df_features = retrieve_and_make_features(request=request, payload=payload)
+    df_features = await retrieve_and_make_features(request=request, payload=payload)
 
     # select features
     selected_features = df_features.columns
