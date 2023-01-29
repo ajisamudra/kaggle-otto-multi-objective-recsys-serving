@@ -6,3 +6,8 @@ application:
   port: 8000
   debug: True
   reload: True
+
+retrieval:
+  n_past_aid_candidates: 20
+  n_covisit_candidates: 10
+  n_word2vec_candidates: 10

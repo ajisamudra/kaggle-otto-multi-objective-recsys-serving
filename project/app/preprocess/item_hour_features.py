@@ -1,9 +1,12 @@
+import logging
 import polars as pl
 from typing import List
+import numpy as np
 
 from app.preprocess.utils import freemem
 from app.api.crud import retrieve_item_hour_features
 
+log = logging.getLogger("uvicorn")
 
 # input candidate_aid, hour
 async def get_item_hour_features(candidate_aids: List, hours: List) -> pl.DataFrame:
@@ -11,37 +14,23 @@ async def get_item_hour_features(candidate_aids: List, hours: List) -> pl.DataFr
         candidate_aids=candidate_aids, hours=hours
     )
 
-    # parse the result
-    aids = []
-    hour_list = []
-    itemXhour_click_counts = []
-    itemXhour_click_to_cart_cvrs = []
-    itemXhour_frac_click_all_click_counts = []
-    itemXhour_frac_click_all_hour_click_counts = []
+    data = np.array(results, dtype=np.float32)
+    columns = [
+        "aid",
+        "hour",
+        "itemXhour_click_count",
+        "itemXhour_click_to_cart_cvr",
+        "itemXhour_frac_click_all_click_count",
+        "itemXhour_frac_click_all_hour_click_count",
+    ]
+    data_agg = pl.DataFrame(data=data, columns=columns)
+    data_agg = data_agg.with_columns(
+        [
+            pl.col("aid").cast(pl.Int32),
+            pl.col("hour").cast(pl.Int32),
+        ]
+    )
 
-    for row in results:
-        aids.append(row["aid"])
-        hour_list.append(hours[0])
-        itemXhour_click_counts.append(row["itemXhour_click_count"])
-        itemXhour_click_to_cart_cvrs.append(row["itemXhour_click_to_cart_cvr"])
-        itemXhour_frac_click_all_click_counts.append(
-            row["itemXhour_frac_click_all_click_count"]
-        )
-        itemXhour_frac_click_all_hour_click_counts.append(
-            row["itemXhour_frac_click_all_hour_click_count"]
-        )
-
-    # save data as dataframe
-    data = {
-        "aid": aids,
-        "hour": hour_list,
-        "itemXhour_click_count": itemXhour_click_counts,
-        "itemXhour_click_to_cart_cvr": itemXhour_click_to_cart_cvrs,
-        "itemXhour_frac_click_all_click_count": itemXhour_frac_click_all_click_counts,
-        "itemXhour_frac_click_all_hour_click_count": itemXhour_frac_click_all_hour_click_counts,
-    }
-
-    data_agg = pl.DataFrame(data)
     data_agg = freemem(data_agg)
 
     return data_agg

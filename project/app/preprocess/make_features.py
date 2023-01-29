@@ -6,6 +6,7 @@ from starlette.requests import Request
 
 from app.data_models.pydantic import PayloadSchema
 from app.embeddings.covisit import make_item_covisit_features
+from app.preprocess.item_covisitation_features import get_item_covisit_features
 from app.embeddings.word2vec import make_item_word2vec_features
 from app.preprocess.item_features import get_item_features
 from app.preprocess.item_hour_features import get_item_hour_features
@@ -76,7 +77,7 @@ async def make_features(
     candidates = candidates.drop(
         columns=["max_rank_covisit", "total_log_rank_covisit_score"]
     )
-    print(f"join sess_fea shape : {candidates.shape}")
+    log.info(f"join sess_fea shape : {candidates.shape}")
 
     # create session representation
     sess_repr_df = make_session_representation_items(sess_df=sess_df)
@@ -85,8 +86,9 @@ async def make_features(
 
     # item-covisit features
     # get features with candidate_aid & session representation
-    item_covisit_fea_df = make_item_covisit_features(
-        cand_df=candidates, sess_representation=sess_repr_df
+    item_covisit_fea_df = await get_item_covisit_features(
+        cand_df=candidates,
+        sess_representation=sess_repr_df,
     )
     candidates = candidates.join(
         item_covisit_fea_df,
@@ -206,7 +208,7 @@ async def make_features(
         ]
     )
 
-    print(f"join covisit_fea shape : {candidates.shape}")
+    log.info(f"join covisit_fea shape : {candidates.shape}")
 
     # FEATURE 3: word2vec distance features
 
@@ -224,7 +226,7 @@ async def make_features(
         left_on=["candidate_aid"],
         right_on=["candidate_aid"],
     )
-    print(f"join word2vec_fea shape : {candidates.shape}")
+    log.info(f"join word2vec_fea shape : {candidates.shape}")
 
     # FEATURE 4: session-item features
     # session-item features
@@ -281,7 +283,7 @@ async def make_features(
         ]
     )
     candidates = candidates.fill_null(0)
-    print(f"join sess_item_fea shape : {candidates.shape}")
+    log.info(f"join sess_item_fea shape : {candidates.shape}")
 
     # FEATURES 4-B: relative distance features
     DIF_FEAS = [
@@ -295,7 +297,7 @@ async def make_features(
         candidates = calc_relative_diff_w_mean(df=candidates, feature=f)
     # fill 0
     candidates = candidates.fill_nan(0)
-    print(f"join relative_distance_fea shape : {candidates.shape}")
+    log.info(f"join relative_distance_fea shape : {candidates.shape}")
 
     # FEATURE 5: item features
     item_fea_df = await get_item_features(
@@ -306,7 +308,7 @@ async def make_features(
         how="left",
         left_on=["candidate_aid"],
         right_on=["aid"],
-    )
+    ).fill_nan(0)
 
     candidates = candidates.with_columns(
         [
@@ -322,7 +324,7 @@ async def make_features(
     )
     candidates = candidates.fill_null(0)
 
-    print(f"join item_fea shape : {candidates.shape}")
+    log.info(f"join item_fea shape : {candidates.shape}")
 
     # FEATURE 6: item-hour features
 
@@ -337,9 +339,9 @@ async def make_features(
         how="left",
         left_on=["candidate_aid", "sess_hour"],
         right_on=["aid", "hour"],
-    ).fill_null(0)
+    ).fill_nan(0)
 
-    print(f"join item_hour_fea shape : {candidates.shape}")
+    log.info(f"join item_hour_fea shape : {candidates.shape}")
 
     # FEATURE 7: item-weekday features
 
@@ -354,9 +356,9 @@ async def make_features(
         how="left",
         left_on=["candidate_aid", "sess_weekday"],
         right_on=["aid", "weekday"],
-    ).fill_null(0)
+    ).fill_nan(0)
 
-    print(f"join item_weekday_fea shape : {candidates.shape}")
+    log.info(f"join item_weekday_fea shape : {candidates.shape}")
 
     # drop cols
     candidates = candidates.drop(

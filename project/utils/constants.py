@@ -21,6 +21,15 @@ def yaml_to_dict(yaml_file_path: str):
 SERVICE_CONFIG = yaml_to_dict("serving_config.yaml")
 
 # ---------------
+# Retrieval Config
+# ---------------
+
+RETRIEVAL_CFG = SERVICE_CONFIG["retrieval"]
+N_PAST_AID = RETRIEVAL_CFG.get("n_past_aid_candidates", 10)
+N_COVISIT = RETRIEVAL_CFG.get("n_covisit_candidates", 10)
+N_WORD2VEC = RETRIEVAL_CFG.get("n_word2vec_candidates", 10)
+
+# ---------------
 # API Port
 # ---------------
 APP_CONFIG = SERVICE_CONFIG["application"]
