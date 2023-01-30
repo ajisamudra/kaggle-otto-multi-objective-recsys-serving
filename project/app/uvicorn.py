@@ -8,4 +8,5 @@ if __name__ == "__main__":
         host=constants.APP_HOST,
         port=constants.APP_PORT,
         reload=constants.APP_RELOAD,
+        workers=4,
     )
