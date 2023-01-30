@@ -1,5 +1,6 @@
 from tortoise import fields, models
 
+
 # item features shape (556203, 10)
 class Item_Feature(models.Model):
     aid = fields.IntField(pk=True)

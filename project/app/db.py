@@ -4,11 +4,12 @@ import os
 from fastapi import FastAPI
 from tortoise import Tortoise, run_async
 from tortoise.contrib.fastapi import register_tortoise
+
 # from utils import constants
 
 log = logging.getLogger("uvicorn")
 
-DATABASE_URL="postgres://postgres:postgres@db:5432/web_dev"
+DATABASE_URL = "postgres://postgres:postgres@db:5432/web_dev"
 # DATABASE_URL="postgres://postgres:postgres@localhost:5432/web_dev"
 
 TORTOISE_ORM = {

@@ -1,5 +1,6 @@
 import logging
 import time
+
 import polars as pl
 from starlette.requests import Request
 

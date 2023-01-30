@@ -2,9 +2,9 @@ import logging
 
 from annoy import AnnoyIndex
 from fastapi import FastAPI
-from app.db import init_db
 
 from app.api import health, predict
+from app.db import init_db
 from app.embeddings.word2vec import load_annoy_idx_word2vec_vect32_wdw3_embedding
 from app.ml_model.ranker import RankerML
 

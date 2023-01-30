@@ -1,10 +1,11 @@
 import logging
-import polars as pl
 from typing import List
-import numpy as np
 
-from app.preprocess.utils import freemem
+import numpy as np
+import polars as pl
+
 from app.api.crud import retrieve_item_weekday_features
+from app.preprocess.utils import freemem
 
 log = logging.getLogger("uvicorn")
 

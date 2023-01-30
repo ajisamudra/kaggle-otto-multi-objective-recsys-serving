@@ -1,12 +1,12 @@
 import logging
 import time
+
 import polars as pl
 from starlette.requests import Request
 
 from app.data_models.pydantic import PayloadSchema
 from app.preprocess.make_features import make_features
 from app.retrieval.all_retrieval import retrieve_candidates
-
 
 log = logging.getLogger("uvicorn")
 

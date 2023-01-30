@@ -1,15 +1,14 @@
 import logging
 from typing import List, Tuple
 
-
 from starlette.requests import Request
 
+from app.api.crud import (
+    retrieve_item_covisit_buy2buy_weights,
+    retrieve_item_covisit_buys_weights,
+)
 from app.data_models.pydantic import PayloadSchema
 from app.embeddings.covisit import suggest_candidates_covisit
-from app.api.crud import (
-    retrieve_item_covisit_buys_weights,
-    retrieve_item_covisit_buy2buy_weights,
-)
 from utils import constants
 
 log = logging.getLogger("uvicorn")

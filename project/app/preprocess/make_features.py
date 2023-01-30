@@ -1,12 +1,13 @@
 import logging
 import time
+
 import numpy as np
 import polars as pl
 from starlette.requests import Request
 
 from app.data_models.pydantic import PayloadSchema
-from app.preprocess.item_covisitation_features import get_item_covisit_features
 from app.embeddings.word2vec import make_item_word2vec_features
+from app.preprocess.item_covisitation_features import get_item_covisit_features
 from app.preprocess.item_features import get_item_features
 from app.preprocess.item_hour_features import get_item_hour_features
 from app.preprocess.item_weekday_features import get_item_weekday_features
@@ -47,7 +48,7 @@ async def make_features(
     )
     candidates = candidates.with_columns(
         [
-            pl.Series(2**linear_interpolation - 1)
+            pl.Series(2 ** linear_interpolation - 1)
             .alias("log_rank_covisit_score")
             .fill_nan(1),
         ]

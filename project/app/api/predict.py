@@ -1,6 +1,7 @@
 import logging
-import polars as pl
 import time
+
+import polars as pl
 from fastapi import APIRouter, Depends
 from starlette.requests import Request
 

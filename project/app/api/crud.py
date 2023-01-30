@@ -1,13 +1,14 @@
 from typing import List
 
 from tortoise.expressions import Q
+
 from app.data_models.tortoise import (
+    Item_Covisit_Buy2Buy_Weight,
+    Item_Covisit_Buy_Weight,
+    Item_Covisit_Click_Weight,
     Item_Feature,
     Item_Hour_Feature,
     Item_Weekday_Feature,
-    Item_Covisit_Click_Weight,
-    Item_Covisit_Buy_Weight,
-    Item_Covisit_Buy2Buy_Weight,
 )
 
 

@@ -74,7 +74,7 @@ def preprocess_events(data: pl.DataFrame):
     data = data.with_columns(
         [
             (pl.col("next_ts") - pl.col("ts")).alias("duration_second"),
-            pl.Series(2**linear_interpolation - 1)
+            pl.Series(2 ** linear_interpolation - 1)
             .alias("log_recency_score")
             .fill_nan(1),
         ]
