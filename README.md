@@ -75,6 +75,21 @@ Following are example of valid request and its response
 
 ![steps](assets/prediction-steps.png "Steps")
 
+## Components's Library
+
+1. Webserver: [FastAPI](https://github.com/tiangolo/fastapi)
+2. Database: [Postgres](https://github.com/postgres)
+3. ANN Index for embeddings (Word2Vec, Matrix Factorization; used in retrieval and similarity distance features): [Annoy](https://github.com/spotify/annoy)
+4. Ranker ML: [CatBoost](https://github.com/catboost/catboost)
+5. real-time data transformation (used in generating session & session-item features): [polars](https://www.pola.rs/)
+6. `asyncio` ORM: [Tortoise ORM](https://github.com/tortoise/tortoise-orm)
+
+## Learnings
+
+1. Good exercise where I shift from ML training perspective to ML serving perspective. In training, I only consider what features can give higher evaluation score. In serving, I start considering complexity in calculating the features and the trade-off between additional score and latency in serving.
+2. Retrieving pre-computed features from Postgres isn't ideal, but it provides the working functionality. In real-world scenario, I would use either [Google BigTable](https://cloud.google.com/bigtable) or [AWS DynamoDB](https://aws.amazon.com/dynamodb/) NoSQL databases.
+3. Loading ML pickle in memory isn't ideal, especially when the size is big. It might slowed down the webserver processing requests. We may separate logic serving & ML serving with [Ray Serve](https://www.ray.io/ray-serve)
+
 ## Development
 
 The service require Docker installed in your machine
